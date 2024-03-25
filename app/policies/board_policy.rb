@@ -12,5 +12,13 @@ class BoardPolicy < ApplicationPolicy
     def update?
       record.user == user
     end
+
+    def create?
+      !user.nill?
+    end
+
+    def destroy?
+      record.user == user
+    end
   end
 end

@@ -1,5 +1,6 @@
 class Api::V1::BoardsController < Api::V1::BaseController
-  before_action :set_board, only: [:show, :update]
+  acts_as_token_authentication_handler_for User, except: [ :index, :show ]
+  before_action :set_board, only: [:show, :update, :destroy]
 
   def index
     @boards = policy_scope(Board)
@@ -14,6 +15,23 @@ class Api::V1::BoardsController < Api::V1::BaseController
     else
       render_error
     end
+  end
+
+  def create
+    @board = Board.new(board_params)
+    @board.user = current_user
+    authorize @board  # For Pundit
+
+    if @board.save
+      render :show, status: :created
+    else
+      render_error
+    end
+  end
+
+  def destroy
+    @board.destroy
+    head :no_content
   end
 
   private
